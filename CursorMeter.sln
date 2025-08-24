@@ -1,0 +1,25 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 17
+VisualStudioVersion = 17.14.36105.17 d17.14
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CursorMeter.GUI", "CursorMeter.GUI\CursorMeter.GUI.csproj", "{D14D3717-7057-4355-B96A-9593D2E87F3C}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{D14D3717-7057-4355-B96A-9593D2E87F3C}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{D14D3717-7057-4355-B96A-9593D2E87F3C}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{D14D3717-7057-4355-B96A-9593D2E87F3C}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{D14D3717-7057-4355-B96A-9593D2E87F3C}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {1D698A2F-8C40-4007-B91A-A2202D1F2C98}
+	EndGlobalSection
+EndGlobal
