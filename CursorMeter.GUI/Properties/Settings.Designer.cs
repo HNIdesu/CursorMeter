@@ -58,5 +58,17 @@ namespace CursorMeter.GUI.Properties {
                 this["HoldToMeasure"] = value;
             }
         }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("50")]
+        public int MaxRecordCount {
+            get {
+                return ((int)(this["MaxRecordCount"]));
+            }
+            set {
+                this["MaxRecordCount"] = value;
+            }
+        }
     }
 }

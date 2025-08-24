@@ -1,10 +1,11 @@
 ﻿using CursorMeter.GUI.Properties;
-using System.Net;
+using LiveChartsCore.SkiaSharpView;
+using System.Collections.ObjectModel;
 using System.Runtime.InteropServices;
 using System.Windows;
-using System.Windows.Input;
 using System.Windows.Interop;
 using System.Windows.Threading;
+
 namespace CursorMeter.GUI
 {
     /// <summary>
@@ -15,11 +16,13 @@ namespace CursorMeter.GUI
         private readonly DispatcherTimer mTimer;
         private Point? mPrevPosition = null;
         private int mInterval = 50;
+        private int mMaxRecordCount = 50;
         private static nint mHookId = 0;
         private static bool mIsMouseLeftButtonPressed = false;
         private static bool mIsMouseRightButtonPressed = false;
         private bool mHoldToMeasure = false;
 
+        private readonly ObservableCollection<double> mSpeedValues = [];
         private static nint MouseHookCallback(int nCode, nint wParam, nint lParam)
         {
             if (nCode >= 0)
@@ -74,6 +77,7 @@ namespace CursorMeter.GUI
             AlwaysOnTopCheck.IsChecked = Settings.Default.AlwaysOnTop;
             HoldToMeasureCheck.IsChecked = Settings.Default.HoldToMeasure;
             DeltaTime.Text = Settings.Default.DeltaTime.ToString();
+            MaxRecordCount.Text = Settings.Default.MaxRecordCount.ToString();
         }
         public MainWindow()
         {
@@ -131,6 +135,15 @@ namespace CursorMeter.GUI
                     Settings.Default.Save();
                 }
             };
+            MaxRecordCount.TextChanged += (sender, ev) =>
+            {
+                mMaxRecordCount = int.Parse(MaxRecordCount.Text);
+                if (mMaxRecordCount != Settings.Default.MaxRecordCount)
+                {
+                    Settings.Default.MaxRecordCount = mMaxRecordCount;
+                    Settings.Default.Save();
+                }
+            };
             Loaded += (sender, ev) =>
             {
                 if (Settings.Default.AlwaysOnTop)
@@ -152,6 +165,9 @@ namespace CursorMeter.GUI
                         {
                             var distance = Point.Subtract(position, mPrevPosition.Value).Length;
                             var speed = distance / mInterval * 1000;
+                            while (mSpeedValues.Count >= mMaxRecordCount)
+                                mSpeedValues.RemoveAt(0);
+                            mSpeedValues.Add(speed);
                             SpeedText.Text = $"Speed: {speed:F2} px/s";
                             mPrevPosition = position;
                         }
@@ -163,6 +179,7 @@ namespace CursorMeter.GUI
                 },
                 Dispatcher.CurrentDispatcher);
             mTimer.Stop();
+            MainChart.Series = [new LineSeries<double> { Values = mSpeedValues }];
         }
 
     }
