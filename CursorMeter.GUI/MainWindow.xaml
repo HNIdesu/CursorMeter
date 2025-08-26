@@ -18,34 +18,34 @@
             <ColumnDefinition Width="*"/>
         </Grid.ColumnDefinitions>
         <TextBlock Grid.Row="0" Grid.Column="0" FontSize="24" FontWeight="Bold" Text="Speed: 0.00 px/s" x:Name="SpeedText"/>
-        <lvc:CartesianChart Margin="0,10,0,0" Grid.Row="1" x:Name="MainChart" />
+        <lvc:CartesianChart Margin="0,10,0,0" Grid.Row="1" Grid.Column="0" x:Name="MainChart" />
         <ToggleButton Margin="0,10,0,0" Grid.Row="2" Grid.Column="0" x:Name="CursorMeterSwitch" Content="Start"/>
         <ScrollViewer
-            Margin="0,10,0,0"
+            Margin="0,0,0,0"
             Grid.Row="3"
             Grid.Column="0"
             HorizontalScrollBarVisibility="Auto"
             VerticalScrollBarVisibility="Auto">
-            <StackPanel Orientation="Vertical">
-                <CheckBox x:Name="HoldToMeasureCheck" Content="Hold To Measure" />
-                <CheckBox x:Name="AlwaysOnTopCheck" Margin="0,10,0,0" Content="Always On Top" />
-                <Grid Margin="0,10,0,0">
-                    <Grid.ColumnDefinitions>
-                        <ColumnDefinition Width="Auto"/>
-                        <ColumnDefinition Width="*"/>
-                    </Grid.ColumnDefinitions>
-                    <Label Content="Delta Time (ms):" Width="Auto" Grid.Column="0"/>
-                    <TextBox x:Name="DeltaTime" Margin="10,0,10,0" Text="0" Grid.Column="1" VerticalAlignment="Center" InputMethod.InputScope="Number"/>
-                </Grid>
-                <Grid Margin="0,10,0,0">
-                    <Grid.ColumnDefinitions>
-                        <ColumnDefinition Width="Auto"/>
-                        <ColumnDefinition Width="*"/>
-                    </Grid.ColumnDefinitions>
-                    <Label Content="Max Record Count:" Width="Auto" Grid.Column="0"/>
-                    <TextBox x:Name="MaxRecordCount" Margin="10,0,10,0" Text="0" Grid.Column="1" VerticalAlignment="Center" InputMethod.InputScope="Number"/>
-                </Grid>
-            </StackPanel>
+            <Grid>
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="Auto"/>
+                </Grid.RowDefinitions>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="Auto"/>
+                    <ColumnDefinition Width="*"/>
+                </Grid.ColumnDefinitions>
+                <TextBlock Text="Hold To Measure" Margin="0,5,5,0" Grid.Row="0" Grid.Column="0"/>
+                <CheckBox x:Name="HoldToMeasureCheck" Margin="5,5,5,0" Grid.Row="0" Grid.Column="1"/>
+                <TextBlock Text="Always On Top" Margin="0,5,5,0" Grid.Row="1" Grid.Column="0"/>
+                <CheckBox x:Name="AlwaysOnTopCheck" Margin="5,5,5,0" Grid.Row="1" Grid.Column="1" />
+                <TextBlock Text="Delta Time (ms)" Margin="0,5,5,0" Grid.Row="2" Grid.Column="0"/>
+                <TextBox x:Name="DeltaTime" Text="0" Margin="5,5,5,0" Grid.Row="2" Grid.Column="1" InputMethod.InputScope="Number"/>
+                <TextBlock Text="Max Record Count" Margin="0,5,5,0" Grid.Row="3" Grid.Column="0"/>
+                <TextBox x:Name="MaxRecordCount" Margin="5,5,5,0" Text="0" Grid.Row="3" Grid.Column="1" InputMethod.InputScope="Number"/>
+            </Grid>
         </ScrollViewer>
     </Grid>
 
