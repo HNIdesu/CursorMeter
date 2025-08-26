@@ -23,6 +23,7 @@ namespace CursorMeter.GUI
         private bool mHoldToMeasure = false;
 
         private readonly ObservableCollection<double> mSpeedValues = [];
+        private readonly ObservableCollection<double> mDirectionValues = [];
         private static nint MouseHookCallback(int nCode, nint wParam, nint lParam)
         {
             if (nCode >= 0)
@@ -78,6 +79,19 @@ namespace CursorMeter.GUI
             HoldToMeasureCheck.IsChecked = Settings.Default.HoldToMeasure;
             DeltaTime.Text = Settings.Default.DeltaTime.ToString();
             MaxRecordCount.Text = Settings.Default.MaxRecordCount.ToString();
+        }
+        private static double GetAngleWithHorizontal(Point p1, Point p2)
+        {
+            double dx = p2.X - p1.X;
+            double dy = p2.Y - p1.Y;
+
+            double angleRadians = Math.Atan2(dy, dx);
+            double angleDegrees = angleRadians * (180.0 / Math.PI);
+
+            if (angleDegrees < 0)
+                angleDegrees += 360;
+
+            return angleDegrees;
         }
         public MainWindow()
         {
@@ -169,17 +183,24 @@ namespace CursorMeter.GUI
                                 mSpeedValues.RemoveAt(0);
                             mSpeedValues.Add(speed);
                             SpeedText.Text = $"Speed: {speed:F2} px/s";
+                            var direction = GetAngleWithHorizontal(mPrevPosition.Value, position);
+                            while (mDirectionValues.Count >= mMaxRecordCount)
+                                mDirectionValues.RemoveAt(0);
+                            mDirectionValues.Add(direction);
+                            DirectionText.Text = $"Direction: {direction:F0} degree";
                             mPrevPosition = position;
                         }
                     }
                     else
                     {
                         SpeedText.Text = "Speed: 0.00 px/s";
+                        DirectionText.Text = "Direction: 0 degree";
                     }
                 },
                 Dispatcher.CurrentDispatcher);
             mTimer.Stop();
-            MainChart.Series = [new LineSeries<double> { Values = mSpeedValues }];
+            SpeedChart.Series = [new LineSeries<double> { Values = mSpeedValues }];
+            DirectionChart.Series = [new LineSeries<double> { Values = mDirectionValues }];
         }
 
     }
