@@ -12,6 +12,9 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "RootFolder", "RootFolder", 
 	EndProjectSection
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Screenshots", "Screenshots", "{E50A0FF3-77FD-4EB6-B2F1-95E229CB3156}"
+	ProjectSection(SolutionItems) = preProject
+		Screenshots\IMG-20250826134502633.png = Screenshots\IMG-20250826134502633.png
+	EndProjectSection
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
