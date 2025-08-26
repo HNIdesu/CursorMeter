@@ -1,7 +1,6 @@
 ﻿using CursorMeter.GUI.Properties;
 using LiveChartsCore.SkiaSharpView;
 using System.Collections.ObjectModel;
-using System.Runtime.InteropServices;
 using System.Windows;
 using System.Windows.Interop;
 using System.Windows.Threading;
@@ -17,37 +16,12 @@ namespace CursorMeter.GUI
         private Point? mPrevPosition = null;
         private int mInterval = 50;
         private int mMaxRecordCount = 50;
-        private static nint mHookId = 0;
-        private static bool mIsMouseLeftButtonPressed = false;
-        private static bool mIsMouseRightButtonPressed = false;
+        private readonly nint mHookId;
         private bool mHoldToMeasure = false;
-
+        private bool mIsCursorInWindow = false;
+        private readonly WinAPI.LowLevelMouseProc mMouseHookCallback;
         private readonly ObservableCollection<double> mSpeedValues = [];
         private readonly ObservableCollection<double> mDirectionValues = [];
-        private static nint MouseHookCallback(int nCode, nint wParam, nint lParam)
-        {
-            if (nCode >= 0)
-            {
-                var hookStruct = Marshal.PtrToStructure<WinAPI.MSLLHOOKSTRUCT>(lParam);
-                switch ((int)wParam)
-                {
-                    case WinAPI.WM_LBUTTONDOWN:
-                        mIsMouseLeftButtonPressed = true;
-                        break;
-                    case WinAPI.WM_LBUTTONUP:
-                        mIsMouseLeftButtonPressed = false;
-                        break;
-                    case WinAPI.WM_RBUTTONDOWN:
-                        mIsMouseRightButtonPressed = true;
-                        break;
-                    case WinAPI.WM_RBUTTONUP:
-                        mIsMouseRightButtonPressed = false;
-                        break;
-                }
-            }
-
-            return WinAPI.CallNextHookEx(mHookId, nCode, wParam, lParam);
-        }
 
         private void RemoveTopMost()
         {
@@ -58,20 +32,6 @@ namespace CursorMeter.GUI
         {
             var hWnd = new WindowInteropHelper(this).Handle;
             WinAPI.SetWindowPos(hWnd, WinAPI.HWND_TOPMOST, 0, 0, 0, 0, WinAPI.SWP_NOMOVE | WinAPI.SWP_NOSIZE | WinAPI.SWP_SHOWWINDOW);
-        }
-
-        private void StartCursorMeter()
-        {
-            mTimer.Start();
-            mHookId = WinAPI.SetWindowsHookEx(WinAPI.WH_MOUSE_LL, MouseHookCallback, 0, 0);
-            CursorMeterSwitch.Content = "Stop";
-        }
-
-        private void StopCursorMeter()
-        {
-            mTimer.Stop();
-            WinAPI.UnhookWindowsHookEx(mHookId);
-            CursorMeterSwitch.Content = "Start";
         }
         private void LoadSettings()
         {
@@ -96,13 +56,61 @@ namespace CursorMeter.GUI
         public MainWindow()
         {
             InitializeComponent();
+            mTimer = new DispatcherTimer(
+                new TimeSpan(0, 0, 0, 0, mInterval),
+                DispatcherPriority.Input,
+                (sender, ev) =>
+                {
+                    WinAPI.GetCursorPos(out var rawPosition);
+                    var position = new Point(rawPosition.X, rawPosition.Y);
+                    if (mPrevPosition == null)
+                        mPrevPosition = position;
+                    else
+                    {
+                        var distance = Point.Subtract(position, mPrevPosition.Value).Length;
+                        var speed = distance / mInterval * 1000;
+                        while (mSpeedValues.Count >= mMaxRecordCount)
+                            mSpeedValues.RemoveAt(0);
+                        mSpeedValues.Add(speed);
+                        SpeedText.Text = $"Speed: {speed:F2} px/s";
+                        var direction = GetAngleWithHorizontal(mPrevPosition.Value, position);
+                        while (mDirectionValues.Count >= mMaxRecordCount)
+                            mDirectionValues.RemoveAt(0);
+                        mDirectionValues.Add(direction);
+                        DirectionText.Text = $"Direction: {direction:F0} degree";
+                        var speedAvg = mSpeedValues.Average();
+                        AverageSpeed.Text = $"Avg: {speedAvg:F2}";
+                        MaxSpeed.Text = $"Max: {mSpeedValues.Max():F2}";
+                        SpeedVar.Text = $"Var: {mSpeedValues.Select(v => Math.Pow(v - speedAvg, 2)).Average():F2}";
+                        var directionAvg = mDirectionValues.Average();
+                        AverageDirection.Text = $"Avg: {directionAvg:F2}";
+                        MaxDirection.Text = $"Max: {mDirectionValues.Max():F2}";
+                        DirectionVar.Text = $"Var: {mDirectionValues.Select(v => Math.Pow(v - directionAvg, 2)).Average():F2}";
+                        mPrevPosition = position;
+                    }
+                },
+                Dispatcher.CurrentDispatcher
+            );
+            mTimer.Stop();
+            MouseEnter += (sender, ev) =>
+            {
+                mIsCursorInWindow = true;
+            };
+            MouseLeave += (sender, ev) =>
+            {
+                mIsCursorInWindow = false;
+            };
             CursorMeterSwitch.Checked += (sender, ev) =>
             {
-                StartCursorMeter();
+                mTimer.Start();
+                CursorMeterSwitch.Content = "Stop";
+                if (mIsCursorInWindow)
+                    HoldToMeasureCheck.IsChecked = false;
             };
             CursorMeterSwitch.Unchecked += (sender, ev) =>
             {
-                StopCursorMeter();
+                mTimer.Stop();
+                CursorMeterSwitch.Content = "Start";
             };
             HoldToMeasureCheck.Checked += (sender, ev) =>
             {
@@ -164,51 +172,37 @@ namespace CursorMeter.GUI
                     MakeTopMost();
             };
             LoadSettings();
-            mTimer = new DispatcherTimer(
-                new TimeSpan(0, 0, 0, 0, mInterval),
-                DispatcherPriority.Input,
-                (sender, ev) =>
-                {
-                    if ((!mHoldToMeasure) || mIsMouseLeftButtonPressed || mIsMouseRightButtonPressed)
-                    {
-                        WinAPI.GetCursorPos(out var rawPosition);
-                        var position = new Point(rawPosition.X, rawPosition.Y);
-                        if (mPrevPosition == null)
-                            mPrevPosition = position;
-                        else
-                        {
-                            var distance = Point.Subtract(position, mPrevPosition.Value).Length;
-                            var speed = distance / mInterval * 1000;
-                            while (mSpeedValues.Count >= mMaxRecordCount)
-                                mSpeedValues.RemoveAt(0);
-                            mSpeedValues.Add(speed);
-                            SpeedText.Text = $"Speed: {speed:F2} px/s";
-                            var direction = GetAngleWithHorizontal(mPrevPosition.Value, position);
-                            while (mDirectionValues.Count >= mMaxRecordCount)
-                                mDirectionValues.RemoveAt(0);
-                            mDirectionValues.Add(direction);
-                            DirectionText.Text = $"Direction: {direction:F0} degree";
-                            var speedAvg = mSpeedValues.Average();
-                            AverageSpeed.Text = $"Avg: {speedAvg:F2}";
-                            MaxSpeed.Text = $"Max: {mSpeedValues.Max():F2}";
-                            SpeedVar.Text = $"Var: {mSpeedValues.Select(v => Math.Pow(v - speedAvg, 2)).Average():F2}";
-                            var directionAvg = mDirectionValues.Average();
-                            AverageDirection.Text = $"Avg: {directionAvg:F2}";
-                            MaxDirection.Text = $"Max: {mDirectionValues.Max():F2}";
-                            DirectionVar.Text = $"Var: {mDirectionValues.Select(v => Math.Pow(v - directionAvg, 2)).Average():F2}";
-                            mPrevPosition = position;
-                        }
-                    }
-                    else
-                    {
-                        SpeedText.Text = "Speed: 0.00 px/s";
-                        DirectionText.Text = "Direction: 0 degree";
-                    }
-                },
-                Dispatcher.CurrentDispatcher);
-            mTimer.Stop();
             SpeedChart.Series = [new LineSeries<double> { Values = mSpeedValues }];
             DirectionChart.Series = [new LineSeries<double> { Values = mDirectionValues }];
+            var mouseHookCallback = new WinAPI.LowLevelMouseProc((nCode, wParam, lParam) =>
+            {
+                if (nCode >= 0)
+                {
+                    switch ((int)wParam)
+                    {
+                        case WinAPI.WM_LBUTTONDOWN:
+                            if (!mIsCursorInWindow && mHoldToMeasure)
+                            {
+                                CursorMeterSwitch.IsChecked = true;
+                            }
+                            break;
+                        case WinAPI.WM_LBUTTONUP:
+                            {
+                                if (mHoldToMeasure)
+                                    CursorMeterSwitch.IsChecked = false;
+                            }
+                            break;
+                    }
+                }
+                return WinAPI.CallNextHookEx(mHookId, nCode, wParam, lParam);
+            });
+            mMouseHookCallback = mouseHookCallback;
+            mHookId = WinAPI.SetWindowsHookEx(WinAPI.WH_MOUSE_LL, mouseHookCallback, 0, 0);
+        }
+
+        protected override void OnClosed(EventArgs e)
+        {
+            WinAPI.UnhookWindowsHookEx(mHookId);
         }
 
     }
