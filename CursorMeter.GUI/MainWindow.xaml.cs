@@ -188,6 +188,14 @@ namespace CursorMeter.GUI
                                 mDirectionValues.RemoveAt(0);
                             mDirectionValues.Add(direction);
                             DirectionText.Text = $"Direction: {direction:F0} degree";
+                            var speedAvg = mSpeedValues.Average();
+                            AverageSpeed.Text = $"Avg: {speedAvg:F2}";
+                            MaxSpeed.Text = $"Max: {mSpeedValues.Max():F2}";
+                            SpeedVar.Text = $"Var: {mSpeedValues.Select(v => Math.Pow(v - speedAvg, 2)).Average():F2}";
+                            var directionAvg = mDirectionValues.Average();
+                            AverageDirection.Text = $"Avg: {directionAvg:F2}";
+                            MaxDirection.Text = $"Max: {mDirectionValues.Max():F2}";
+                            DirectionVar.Text = $"Var: {mDirectionValues.Select(v => Math.Pow(v - directionAvg, 2)).Average():F2}";
                             mPrevPosition = position;
                         }
                     }
