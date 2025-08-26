@@ -102,6 +102,11 @@ namespace CursorMeter.GUI
             };
             CursorMeterSwitch.Checked += (sender, ev) =>
             {
+                if (Settings.Default.ClearOnStart)
+                {
+                    mSpeedValues.Clear();
+                    mDirectionValues.Clear();
+                }
                 mTimer.Start();
                 CursorMeterSwitch.Content = "Stop";
                 if (mIsCursorInWindow)
@@ -145,6 +150,22 @@ namespace CursorMeter.GUI
                 if (Settings.Default.AlwaysOnTop)
                 {
                     Settings.Default.AlwaysOnTop = false;
+                    Settings.Default.Save();
+                }
+            };
+            ClearOnStartCheck.Checked += (sender, ev) =>
+            {
+                if (!Settings.Default.ClearOnStart)
+                {
+                    Settings.Default.ClearOnStart = true;
+                    Settings.Default.Save();
+                }
+            };
+            ClearOnStartCheck.Unchecked += (sender, ev) =>
+            {
+                if (Settings.Default.ClearOnStart)
+                {
+                    Settings.Default.ClearOnStart = false;
                     Settings.Default.Save();
                 }
             };

@@ -48,6 +48,7 @@
                     <RowDefinition Height="Auto"/>
                     <RowDefinition Height="Auto"/>
                     <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="Auto"/>
                 </Grid.RowDefinitions>
                 <Grid.ColumnDefinitions>
                     <ColumnDefinition Width="Auto"/>
@@ -57,10 +58,12 @@
                 <CheckBox x:Name="HoldToMeasureCheck" Margin="5,5,5,0" Grid.Row="0" Grid.Column="1"/>
                 <TextBlock Text="Always On Top" Margin="0,5,5,0" Grid.Row="1" Grid.Column="0"/>
                 <CheckBox x:Name="AlwaysOnTopCheck" Margin="5,5,5,0" Grid.Row="1" Grid.Column="1" />
-                <TextBlock Text="Delta Time (ms)" Margin="0,5,5,0" Grid.Row="2" Grid.Column="0"/>
-                <TextBox x:Name="DeltaTime" Text="0" Margin="5,5,5,0" Grid.Row="2" Grid.Column="1" InputMethod.InputScope="Number"/>
-                <TextBlock Text="Max Record Count" Margin="0,5,5,0" Grid.Row="3" Grid.Column="0"/>
-                <TextBox x:Name="MaxRecordCount" Margin="5,5,5,0" Text="0" Grid.Row="3" Grid.Column="1" InputMethod.InputScope="Number"/>
+                <TextBlock Text="Clear On Start" Margin="0,5,5,0" Grid.Row="2" Grid.Column="0"/>
+                <CheckBox x:Name="ClearOnStartCheck" Margin="5,5,5,0" Grid.Row="2" Grid.Column="1" />
+                <TextBlock Text="Delta Time (ms)" Margin="0,5,5,0" Grid.Row="3" Grid.Column="0"/>
+                <TextBox x:Name="DeltaTime" Text="0" Margin="5,5,5,0" Grid.Row="3" Grid.Column="1" InputMethod.InputScope="Number"/>
+                <TextBlock Text="Max Record Count" Margin="0,5,5,0" Grid.Row="4" Grid.Column="0"/>
+                <TextBox x:Name="MaxRecordCount" Margin="5,5,5,0" Text="0" Grid.Row="4" Grid.Column="1" InputMethod.InputScope="Number"/>
             </Grid>
         </ScrollViewer>
     </Grid>

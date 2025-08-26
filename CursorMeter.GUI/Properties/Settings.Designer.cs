@@ -70,5 +70,17 @@ namespace CursorMeter.GUI.Properties {
                 this["MaxRecordCount"] = value;
             }
         }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("False")]
+        public bool ClearOnStart {
+            get {
+                return ((bool)(this["ClearOnStart"]));
+            }
+            set {
+                this["ClearOnStart"] = value;
+            }
+        }
     }
 }
